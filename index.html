@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ocuri Trail</title>
+<meta name="description" content="Entrenamiento de fuerza para trail running — Ocuri Trail">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:           #F5F3EE;
+  --bg-card:      #FFFFFF;
+  --bg-surface:   #EEEBE4;
+  --fg:           #1A1A18;
+  --fg-mid:       #5A574F;
+  --fg-muted:     #8C8880;
+  --accent:       #3D6B41;
+  --accent-light: #E8F0E8;
+  --accent-warm:  #B85C28;
+  --accent-ai:    #6B3DAF;
+  --accent-ai-light: #F0EAF8;
+  --border:       #D8D4CB;
+  --tag-bg:       #EBE8E1;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151613; --bg-card: #1E201C; --bg-surface: #252720;
+    --fg: #F0EDE6; --fg-mid: #A8A49C; --fg-muted: #6E6A63;
+    --accent: #5A9960; --accent-light: #1E2E1F;
+    --accent-warm: #C96E3A; --accent-ai: #9B6DD4; --accent-ai-light: #221A2E;
+    --border: #333530; --tag-bg: #2A2C26;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151613; --bg-card: #1E201C; --bg-surface: #252720;
+  --fg: #F0EDE6; --fg-mid: #A8A49C; --fg-muted: #6E6A63;
+  --accent: #5A9960; --accent-light: #1E2E1F;
+  --accent-warm: #C96E3A; --accent-ai: #9B6DD4; --accent-ai-light: #221A2E;
+  --border: #333530; --tag-bg: #2A2C26;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; font-family: 'Barlow', system-ui, sans-serif;
+  background: var(--bg); color: var(--fg); font-size: 16px; line-height: 1.5;
+}
+body {
+  padding-left: max(0px, env(safe-area-inset-left,0px));
+  padding-right: max(0px, env(safe-area-inset-right,0px));
+  display: flex; flex-direction: column; min-height: 100%;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--accent); color: #fff;
+  padding: 14px max(20px,env(safe-area-inset-left,0px)) 14px max(20px,env(safe-area-inset-right,0px));
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: env(safe-area-inset-top,0px); z-index: 20;
+}
+.header-logo {
+  width: 36px; height: 36px; background: rgba(255,255,255,0.2);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 900; font-size: 18px;
+  letter-spacing: -0.5px; flex-shrink: 0;
+}
+.header-text h1 {
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 900;
+  font-size: 1.25rem; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1;
+}
+.header-text p { font-size: 0.72rem; opacity: 0.8; letter-spacing: 0.3px; text-transform: uppercase; }
+.header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.header-btn {
+  background: rgba(255,255,255,0.2); border: none; color: #fff;
+  border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+}
+.header-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* ── TABS ── */
+.app-tabs {
+  background: var(--bg-card); border-bottom: 1px solid var(--border);
+  display: flex; gap: 0; padding: 0 20px;
+}
+.tab-btn {
+  padding: 12px 18px; border: none; background: transparent;
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700; font-size: 0.95rem;
+  letter-spacing: 0.5px; text-transform: uppercase; color: var(--fg-muted);
+  cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 7px; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--fg-mid); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn .tab-badge {
+  background: var(--accent-warm); color: #fff;
+  font-size: 0.65rem; font-weight: 700; padding: 1px 6px;
+  border-radius: 100px; min-width: 18px; text-align: center;
+}
+.tab-btn.tab-fav.active { color: var(--accent-warm); border-bottom-color: var(--accent-warm); }
+
+/* ── LAYOUT ── */
+.app-body { display: flex; flex: 1; min-height: 0; }
+.sidebar {
+  width: 220px; flex-shrink: 0; background: var(--bg-surface);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto;
+}
+.sidebar-section { padding: 16px 12px 8px; }
+.sidebar-label {
+  font-family: 'Barlow Condensed',sans-serif; font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--fg-muted);
+  padding: 0 4px; margin-bottom: 6px;
+}
+.muscle-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; border-radius: var(--r-md); border: none;
+  background: transparent; color: var(--fg-mid);
+  font-family: 'Barlow',sans-serif; font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; text-align: left; transition: background 0.15s, color 0.15s; margin-bottom: 2px;
+}
+.muscle-btn:hover { background: var(--accent-light); color: var(--accent); }
+.muscle-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
+.muscle-btn .m-icon { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
+
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+
+/* ── PROFILE BAR ── */
+.profile-bar {
+  background: var(--bg-card); border-bottom: 1px solid var(--border);
+  padding: 14px max(20px,env(safe-area-inset-right,0px)) 14px 20px;
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+}
+.profile-field { display: flex; flex-direction: column; gap: 4px; min-width: 80px; }
+.profile-field label {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--fg-muted);
+}
+.profile-field input, .profile-field select {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--fg);
+  font-family: 'Barlow',sans-serif; font-size: 0.9rem;
+  padding: 7px 10px; outline: none; transition: border-color 0.15s; min-width: 0;
+}
+.profile-field input:focus, .profile-field select:focus { border-color: var(--accent); }
+.profile-field input[type="number"] { width: 80px; }
+
+.bar-btns { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+.btn-generar {
+  background: var(--accent-warm); color: #fff; border: none;
+  border-radius: var(--r-md); padding: 9px 20px;
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap;
+}
+.btn-generar:hover { opacity: 0.9; }
+.btn-generar:active { transform: scale(0.98); }
+.btn-generar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-ia {
+  background: var(--accent-ai); color: #fff; border: none;
+  border-radius: var(--r-md); padding: 9px 18px;
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap;
+  display: flex; align-items: center; gap: 7px;
+}
+.btn-ia:hover { opacity: 0.9; }
+.btn-ia:active { transform: scale(0.98); }
+.btn-ia:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ia .ia-spinner {
+  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.7s linear infinite; display: none;
+}
+.btn-ia.loading .ia-spinner { display: block; }
+.btn-ia.loading .ia-label { opacity: 0.7; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CONTENT ── */
+.content-area { flex: 1; padding: 24px 20px; padding-right: max(20px,env(safe-area-inset-right,0px)); }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 320px; text-align: center; gap: 12px;
+}
+.empty-icon { font-size: 3rem; opacity: 0.3; }
+.empty-state h2 {
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 1.3rem; color: var(--fg-mid); text-wrap: balance;
+}
+.empty-state p { color: var(--fg-muted); font-size: 0.9rem; max-width: 300px; text-wrap: balance; }
+
+/* ── PROGRAMA HEADER ── */
+.programa-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.programa-titulo {
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 900;
+  font-size: 1.8rem; text-transform: uppercase; line-height: 1; color: var(--fg);
+}
+.programa-titulo span { color: var(--accent); }
+.programa-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.meta-tag {
+  background: var(--tag-bg); color: var(--fg-mid); font-size: 0.75rem;
+  font-weight: 600; letter-spacing: 0.3px; padding: 3px 10px;
+  border-radius: 100px; border: 1px solid var(--border);
+}
+.meta-tag.ia-tag {
+  background: var(--accent-ai-light); color: var(--accent-ai);
+  border-color: var(--accent-ai);
+}
+
+/* ── GRID EJERCICIOS ── */
+.ejercicios-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 16px; }
+
+.ejercicio-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  display: flex; flex-direction: column; transition: box-shadow 0.2s;
+  position: relative;
+}
+.ejercicio-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.ejercicio-card.ia-card { border-color: var(--accent-ai); }
+
+/* ── THUMBNAIL ── */
+.card-video-thumb {
+  position: relative; aspect-ratio: 16/9;
+  background: var(--bg-surface); cursor: pointer; overflow: hidden; flex-shrink: 0;
+}
+.card-video-thumb img {
+  width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s;
+}
+.card-video-thumb:hover img { transform: scale(1.04); }
+.card-video-placeholder {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--accent) 0%, #1e3d21 100%); font-size: 3rem;
+}
+.card-video-thumb.has-error .card-video-placeholder { display: flex; }
+.card-video-thumb.has-error img { display: none; }
+.card-video-thumb.ia-thumb .card-video-placeholder {
+  background: linear-gradient(135deg, var(--accent-ai) 0%, #2d1a4f 100%); display: flex;
+}
+.card-video-thumb.ia-thumb img { display: none; }
+.play-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.25); transition: background 0.2s;
+}
+.card-video-thumb:hover .play-overlay { background: rgba(0,0,0,0.35); }
+.play-btn {
+  width: 52px; height: 52px; background: rgba(255,255,255,0.95); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.35); transition: transform 0.15s;
+}
+.card-video-thumb:hover .play-btn { transform: scale(1.08); }
+.play-btn svg { width: 20px; height: 20px; fill: #FF0000; margin-left: 3px; }
+.card-num {
+  position: absolute; top: 10px; left: 10px; background: var(--accent); color: #fff;
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;
+}
+.card-num.ia-num { background: var(--accent-ai); }
+.card-yt-hint {
+  position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff;
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.3px;
+  padding: 3px 8px; border-radius: 4px; display: none;
+}
+@media (hover: none) { .card-yt-hint { display: block; } }
+
+/* ── CARD BODY ── */
+.card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.card-nombre {
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 1.1rem; line-height: 1.2; color: var(--fg); text-wrap: balance;
+}
+.card-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+.stat-box { background: var(--bg-surface); border-radius: var(--r-sm); padding: 8px 6px; text-align: center; }
+.stat-val {
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 1.2rem; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums;
+}
+.stat-lbl { font-size: 0.65rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.card-tip { font-size: 0.8rem; color: var(--fg-muted); line-height: 1.4; padding-top: 4px; border-top: 1px solid var(--border); }
+.card-link {
+  display: flex; align-items: center; gap: 6px; color: var(--accent);
+  font-size: 0.82rem; font-weight: 600; text-decoration: none; padding-top: 2px;
+}
+.card-link:hover { text-decoration: underline; }
+.card-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── CARD ACTIONS (rotar + favorito) ── */
+.card-actions {
+  display: flex; gap: 8px; padding: 0 16px 14px; margin-top: -4px;
+}
+.btn-rotar, .btn-fav {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--bg-surface);
+  color: var(--fg-mid); font-family: 'Barlow Condensed',sans-serif;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+  padding: 7px 10px; cursor: pointer; transition: all 0.15s;
+}
+.btn-rotar:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+.btn-rotar:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-fav:hover { background: #FFF3E0; color: var(--accent-warm); border-color: var(--accent-warm); }
+.btn-fav.active { background: #FFF3E0; color: var(--accent-warm); border-color: var(--accent-warm); }
+.btn-fav.active .fav-icon::before { content: '★'; }
+.btn-fav:not(.active) .fav-icon::before { content: '☆'; }
+
+/* ── IA CARD ESPECIAL ── */
+.ia-tip-box {
+  background: var(--accent-ai-light); border-radius: var(--r-sm);
+  padding: 10px 12px; font-size: 0.8rem; color: var(--fg-mid); line-height: 1.5;
+  border-left: 3px solid var(--accent-ai);
+}
+.ia-label-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--accent-ai-light); color: var(--accent-ai);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 100px; border: 1px solid var(--accent-ai);
+}
+
+/* ── RESUMEN ── */
+.resumen-bloque {
+  background: var(--accent-light); border: 1px solid var(--accent);
+  border-radius: var(--r-md); padding: 14px 18px; margin-top: 20px;
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+}
+.r-item { text-align: center; }
+.r-val { font-family: 'Barlow Condensed',sans-serif; font-weight: 900; font-size: 1.6rem; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+.r-lbl { font-size: 0.72rem; color: var(--fg-mid); text-transform: uppercase; letter-spacing: 0.5px; }
+.r-sep { flex: 1; min-width: 0; font-size: 0.88rem; color: var(--fg-mid); line-height: 1.5; }
+
+/* ── FAVORITOS TAB ── */
+.favs-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 280px; text-align: center; gap: 12px;
+}
+.favs-empty .empty-icon { font-size: 2.5rem; opacity: 0.25; }
+.favs-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+}
+.favs-titulo {
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 900;
+  font-size: 1.5rem; text-transform: uppercase; color: var(--fg);
+}
+.btn-clear-favs {
+  background: transparent; border: 1px solid var(--border); border-radius: var(--r-sm);
+  color: var(--fg-muted); font-size: 0.8rem; font-weight: 600; padding: 6px 12px;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-clear-favs:hover { border-color: #e53935; color: #e53935; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--bg-card); border-radius: var(--r-lg);
+  width: 100%; max-width: 700px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  transform: translateY(20px); transition: transform 0.25s;
+}
+.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-family: 'Barlow Condensed',sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--fg); }
+.modal-close {
+  background: var(--bg-surface); border: none; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; color: var(--fg-mid);
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: var(--border); }
+.modal-video { position: relative; aspect-ratio: 16/9; background: #000; }
+.modal-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.modal-video-actions {
+  display: flex; gap: 10px; padding: 14px 18px;
+  border-top: 1px solid var(--border); background: var(--bg-surface);
+}
+.btn-yt, .btn-yt-search {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: var(--r-md); padding: 12px 16px;
+  font-family: 'Barlow Condensed',sans-serif; font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; text-decoration: none; transition: opacity 0.15s; color: #fff;
+}
+.btn-yt { background: #FF0000; }
+.btn-yt:hover { opacity: 0.88; }
+.btn-yt-search { background: var(--accent-warm); }
+.btn-yt-search:hover { opacity: 0.88; }
+
+/* ── SKELETON / LOADING ── */
+.skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 16px; }
+.skeleton-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+}
+.skeleton-thumb { aspect-ratio: 16/9; background: var(--bg-surface); position: relative; overflow: hidden; }
+.skeleton-body { padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+.skeleton-line {
+  height: 14px; background: var(--bg-surface); border-radius: 4px;
+  position: relative; overflow: hidden;
+}
+.skeleton-line::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .mobile-muscle-select { display: block !important; }
+  .profile-bar { gap: 8px; padding: 12px 16px; }
+  .content-area { padding: 16px; }
+  .ejercicios-grid, .skeleton-grid { grid-template-columns: 1fr; }
+  .modal-video-actions { flex-direction: column; }
+  .app-tabs { padding: 0 10px; }
+  .tab-btn { padding: 10px 12px; font-size: 0.85rem; }
+}
+.mobile-muscle-select { display: none; }
+.mobile-muscle-select { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 10px max(16px,env(safe-area-inset-right,0px)) 10px 16px; }
+.mobile-muscle-select select {
+  width: 100%; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--fg);
+  font-family: 'Barlow',sans-serif; font-size: 0.95rem; padding: 9px 12px; outline: none;
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-logo">OT</div>
+  <div class="header-text">
+    <h1>Ocuri Trail</h1>
+    <p>Entrenamiento de fuerza para trail</p>
+  </div>
+  <div class="header-actions">
+    <button class="header-btn" onclick="toggleTheme()" aria-label="Cambiar tema" title="Cambiar tema">☾</button>
+  </div>
+</header>
+
+<nav class="app-tabs" role="tablist">
+  <button class="tab-btn active" id="tab-entreno" onclick="switchTab('entreno')" role="tab">
+    🏔️ Entrenamiento
+  </button>
+  <button class="tab-btn tab-fav" id="tab-favs" onclick="switchTab('favs')" role="tab">
+    ★ Favoritos <span class="tab-badge" id="favBadge" hidden>0</span>
+  </button>
+</nav>
+
+<div class="mobile-muscle-select" id="mobileMuscleWrap">
+  <select id="mobileSelect" onchange="selectMuscle(this.value)">
+    <option value="">— Elige grupo muscular —</option>
+  </select>
+</div>
+
+<!-- TAB ENTRENAMIENTO -->
+<div id="panelEntreno" class="app-body">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Grupo muscular</div>
+      <div id="muscleList"></div>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="profile-bar">
+      <div class="profile-field">
+        <label for="edad">Edad</label>
+        <input type="number" id="edad" min="16" max="80" placeholder="35" value="35">
+      </div>
+      <div class="profile-field">
+        <label for="peso">Peso (kg)</label>
+        <input type="number" id="peso" min="40" max="150" placeholder="70" value="70">
+      </div>
+      <div class="profile-field">
+        <label for="nivel">Nivel</label>
+        <select id="nivel">
+          <option value="principiante">Principiante</option>
+          <option value="intermedio" selected>Intermedio</option>
+          <option value="avanzado">Avanzado</option>
+        </select>
+      </div>
+      <div class="profile-field">
+        <label for="objetivo">Objetivo</label>
+        <select id="objetivo">
+          <option value="fuerza">Fuerza</option>
+          <option value="resistencia" selected>Resistencia</option>
+          <option value="estabilidad">Estabilidad</option>
+        </select>
+      </div>
+      <div class="bar-btns">
+        <button class="btn-generar" onclick="generarPrograma(false)">Generar programa</button>
+        <button class="btn-ia" id="btnIA" onclick="generarPrograma(true)">
+          <span class="ia-spinner" id="iaSpinner"></span>
+          <span class="ia-label">✦ IA</span>
+        </button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">⛰️</div>
+        <h2>Selecciona un grupo muscular</h2>
+        <p>Elige el músculo que quieres entrenar y pulsa "Generar programa" o <strong>✦ IA</strong> para ejercicios generados por inteligencia artificial.</p>
+      </div>
+      <div id="programaArea" hidden></div>
+    </div>
+  </main>
+</div>
+
+<!-- TAB FAVORITOS -->
+<div id="panelFavs" class="app-body" hidden style="flex-direction:column;">
+  <div class="content-area" style="max-width:960px;margin:0 auto;width:100%;">
+    <div id="favsContent"></div>
+  </div>
+</div>
+
+<!-- MODAL VÍDEO -->
+<div class="modal-overlay" id="videoModal" role="dialog" aria-modal="true" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Ejercicio</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-video">
+      <iframe id="modalIframe" src="" allow="autoplay; encrypted-media" allowfullscreen title="Vídeo ejercicio"></iframe>
+    </div>
+    <div class="modal-video-actions">
+      <a id="modalYtLink" href="#" target="_blank" rel="noopener" class="btn-yt">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        Ver en YouTube
+      </a>
+      <a id="modalSearchLink" href="#" target="_blank" rel="noopener" class="btn-yt-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Buscar variantes
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONFIGURACIÓN — editar antes de desplegar
+═══════════════════════════════════════════════ */
+const PROXY_URL    = 'https://claude-proxy.TU_CUENTA.workers.dev';  // ← cambiar
+const PROXY_SECRET = 'TU_PROXY_SECRET';                              // ← cambiar
+
+/* ═══════════════════════════════════════════════
+   DATOS
+═══════════════════════════════════════════════ */
+const MUSCULOS = [
+  { id:'cuadriceps',     label:'Cuádriceps',        icon:'🦵' },
+  { id:'gluteos',        label:'Glúteos',            icon:'🍑' },
+  { id:'abdominales',    label:'Core / Abdominales', icon:'💪' },
+  { id:'isquiotibiales', label:'Isquiotibiales',     icon:'🦿' },
+  { id:'gemelos',        label:'Gemelos / Sóleo',    icon:'🦶' },
+  { id:'cadera',         label:'Cadera / Aductores', icon:'⚡' },
+  { id:'espalda',        label:'Espalda / Lumbares', icon:'🏔️' },
+];
+
+const EJERCICIOS = {
+  cuadriceps: [
+    { nombre:'Sentadilla búlgara con mancuernas',    videoId:'HtEY0aKtGIk', canal:'GymVirtual', tip:'Mantén el torso erguido y la rodilla delantera alineada con el pie. Fundamental para el impulso en subida.' },
+    { nombre:'Sentadilla sumo con mancuerna',         videoId:'YbX7Wd8jQ-U', canal:'GymVirtual', tip:'Pies más separados que los hombros. Activa glúteos y cuádriceps de forma complementaria.' },
+    { nombre:'Zancada frontal con mancuernas',        videoId:'D7KaRcUTQeE', canal:'GymVirtual', tip:'Paso largo hacia adelante, rodilla trasera cerca del suelo. Simula el patrón de zancada en trail.' },
+    { nombre:'Sentadilla a una pierna (pistol squat)',videoId:'vq5-vdgJc0I', canal:'Calistenia',  tip:'Apoya la mano en pared si es necesario. Excelente para estabilidad y fuerza unilateral.' },
+    { nombre:'Step-up con mancuernas',                videoId:'WCFCdxzFBa4', canal:'GymVirtual', tip:'Usa un cajón o banco. Replica el gesto de subida de escalones en montaña.' },
+    { nombre:'Zancadas laterales',                    videoId:'QOVaHwm-Q6U', canal:'Funcional',  tip:'Trabaja el plano frontal, esencial para la estabilidad lateral en terreno irregular.' },
+    { nombre:'Sentadilla hack con talones elevados',  videoId:'EdtPAjCRrFk', canal:'GymVirtual', tip:'Talones sobre disco o placa. Mayor activación del vasto interno, clave en descensos.' },
+    { nombre:'Prensa de piernas a una pierna',        videoId:'IZxyjW7MPJQ', canal:'GymVirtual', tip:'Detecta y corrige desequilibrios entre piernas. Imprescindible para trailrunners.' },
+  ],
+  gluteos: [
+    { nombre:'Hip thrust con mancuernas',             videoId:'xDmFkJxPzeM', canal:'GymVirtual', tip:'Apoya hombros en banco o sofá. Aprieta glúteos en lo alto y aguanta 1 segundo.' },
+    { nombre:'Peso muerto rumano con mancuernas',     videoId:'JCXUYuzwNrM', canal:'GymVirtual', tip:'Espalda recta, bisagra de cadera. Activa glúteo e isquiotibial simultáneamente.' },
+    { nombre:'Donkey kick con cinta elástica',        videoId:'3JdaFCRzQ4Q', canal:'ProEteje',   tip:'Coloca la cinta en el pie y lleva el talón al techo. Movimiento de extensión pura de cadera.' },
+    { nombre:'Puente de glúteo a una pierna',         videoId:'gkTMnPeE1uo', canal:'ProEteje',   tip:'Tumbado boca arriba, un pie en el suelo. Excelente para detectar y corregir asimetrías.' },
+    { nombre:'Clamshell con cinta elástica',          videoId:'0HOmM2bWHdY', canal:'GymVirtual', tip:'Tumbado de lado, rodillas dobladas. Trabaja glúteo medio, clave para estabilidad en bajadas.' },
+    { nombre:'Sentadilla sumo con pausa',             videoId:'sBlpvVYKFUE', canal:'Funcional',  tip:'Pausa 2 segundos abajo. Activa el reflejo de estiramiento y mejora la potencia de salida.' },
+    { nombre:'Patada trasera en cuadrupedia',         videoId:'SXfLGcW6UoY', canal:'ProEteje',   tip:'A cuatro patas, rodilla a 90°. Aislamiento del glúteo mayor muy eficaz.' },
+    { nombre:'Sentadilla lateral con cinta',          videoId:'XCKmdHfuLGI', canal:'GymVirtual', tip:'Pasos laterales con resistencia. Alta activación de glúteo medio.' },
+  ],
+  abdominales: [
+    { nombre:'Plancha frontal progresiva',            videoId:'ASdvN_XEl_c', canal:'GymVirtual', tip:'Cuerpo en línea recta. Fundamental para transferir fuerza en subidas largas.' },
+    { nombre:'Dead bug (insecto muerto)',              videoId:'g_BYB0R-4Ws', canal:'ProEteje',   tip:'Baja un brazo y la pierna opuesta despacio. Estabilización lumbar ideal para trail.' },
+    { nombre:'Pallof press con cinta elástica',       videoId:'AH_QZLm_0-s', canal:'ProEteje',   tip:'Empuja y regresa sin girar el tronco. Antirotación pura, clave en terreno lateral.' },
+    { nombre:'Plancha lateral con elevación',         videoId:'1vcl_1OGo58', canal:'GymVirtual', tip:'Desde plancha lateral, sube la cadera y baja sin tocar. Trabaja el cuadrado lumbar.' },
+    { nombre:'Bird dog',                              videoId:'wiFNA3sqjCA', canal:'ProEteje',   tip:'A cuatro patas, extiende brazo y pierna opuestos. Estabilización de columna en movimiento.' },
+    { nombre:'Crunch de bicicleta lento',             videoId:'cbKIDZ_XUpU', canal:'GymVirtual', tip:'Movimiento lento y controlado. Activa recto abdominal y oblicuos simultáneamente.' },
+    { nombre:'Hollow body hold',                      videoId:'LlDNef_Ztsc', canal:'Calistenia',  tip:'Posición de barca, zona lumbar pegada al suelo. Base de fuerza de core para corredores.' },
+    { nombre:'Rueda abdominal (ab wheel)',             videoId:'j5EEjJRa5FY', canal:'GymVirtual', tip:'Movimiento lento y controlado. Uno de los ejercicios más completos para el core.' },
+  ],
+  isquiotibiales: [
+    { nombre:'Peso muerto con mancuernas a una pierna',videoId:'q00NJzCrDgw', canal:'GymVirtual', tip:'Mantén la espalda recta y el núcleo activo. Excelente para propiocepción de tobillo.' },
+    { nombre:'Nordic curl (curl nórdico)',              videoId:'aVMCbzTJNMg', canal:'ProEteje',   tip:'Ancla los pies, desciende lento. El ejercicio más eficaz para prevenir lesiones de isquio.' },
+    { nombre:'Buenos días con cinta elástica',          videoId:'vKPGe8zb2S4', canal:'Funcional',  tip:'La cinta en los hombros. Carga excéntrica en el isquiotibial y los lumbares.' },
+    { nombre:'Puente de glúteo con curl de isquio',    videoId:'cZDd6cwtGes', canal:'ProEteje',   tip:'Tumbado, pies en toallas o calcetines. Desliza talones hacia ti. Muy funcional.' },
+    { nombre:'Sentadilla con salto',                   videoId:'CVaEhXotL7M', canal:'GymVirtual', tip:'Potencia explosiva. Carga excéntrica en el aterrizaje activa isquiotibiales.' },
+    { nombre:'Zancada hacia atrás con mancuernas',     videoId:'sFmUJDqe6Gg', canal:'GymVirtual', tip:'La pierna trasera trabaja el isquio con mayor énfasis que la zancada frontal.' },
+    { nombre:'Curl de isquiotibiales tumbado',         videoId:'ELOCsoDSmrg', canal:'GymVirtual', tip:'Con mancuerna entre los pies o cinta. Aislamiento del bíceps femoral.' },
+    { nombre:'Sentadilla rumana con mancuernas',       videoId:'hCDzSR6bW10', canal:'GymVirtual', tip:'Mayor énfasis en la cadera que la sentadilla tradicional. Cadena posterior completa.' },
+  ],
+  gemelos: [
+    { nombre:'Elevación de talones de pie (mancuerna)',videoId:'bOBNmZtnYpg', canal:'GymVirtual', tip:'En escalón para mayor rango. Mantén la posición alta 1 segundo. Esencial para el impulso.' },
+    { nombre:'Elevación de talones sentado',           videoId:'JbyjNymZOt0', canal:'Funcional',  tip:'Sentado, la mancuerna en los muslos. Trabaja el sóleo, que aguanta en bajadas largas.' },
+    { nombre:'Elevación de talones a una pierna',      videoId:'P3bvHi-xLmE', canal:'ProEteje',   tip:'Identifica la pierna débil. Progresa hasta hacer 15 repeticiones limpias.' },
+    { nombre:'Saltos a la comba (simulado)',            videoId:'MNOsER9wdyI', canal:'GymVirtual', tip:'Reactiva el tendón de Aquiles y mejora la economía de carrera. Sin comba si no tienes.' },
+    { nombre:'Punta-talón caminando',                  videoId:'cOqJADSAg8Q', canal:'ProEteje',   tip:'Alterna 10 pasos en punta y 10 en talón. Activa toda la cadena posterior de la pierna.' },
+    { nombre:'Elevación excéntrica de talón',          videoId:'M8mxkONMhOA', canal:'ProEteje',   tip:'Sube con dos piernas, baja lento con una. Fase excéntrica clave en prevención de tendinitis.' },
+    { nombre:'Sentadilla en punta de pies',            videoId:'RIhIKfKKWAE', canal:'Funcional',  tip:'Sentadilla completa sobre la punta. Movilidad de tobillo + fuerza de gemelo combinadas.' },
+    { nombre:'Drop landing con absorción',             videoId:'9nkYMl1XYOA', canal:'ProEteje',   tip:'Desde escalón, absorbe el impacto. Prepara el tobillo para los golpes de terreno.' },
+  ],
+  cadera: [
+    { nombre:'Monster walk con cinta elástica',        videoId:'qbqUgC0JCBA', canal:'ProEteje',   tip:'Cinta en tobillos, pasos laterales. Activa glúteo medio y tensor de la fascia lata.' },
+    { nombre:'Elevación lateral de pierna con cinta',  videoId:'iG-ZkYM_q8E', canal:'GymVirtual', tip:'De pie, cinta en tobillo. Trabaja abductores y aductores, cruciales en terreno lateral.' },
+    { nombre:'Apertura de cadera en cuadrupedia',      videoId:'aDUFDUXSFEM', canal:'ProEteje',   tip:'Rotación externa controlada. Ideal para calentar y para corredores con cadera rígida.' },
+    { nombre:'Zancada lateral con cinta',              videoId:'XCKmdHfuLGI', canal:'GymVirtual', tip:'Pasos laterales amplios con cinta en tobillos. Alta activación de aductores.' },
+    { nombre:'Sentadilla pliométrica con apertura',    videoId:'HpVOFMePuF8', canal:'Funcional',  tip:'Baja a sentadilla, salta y abre piernas al aterrizaje. Potencia y movilidad combinadas.' },
+    { nombre:'Estocada lateral con mancuerna',         videoId:'DYv7K59JxnM', canal:'GymVirtual', tip:'Paso lateral amplio, peso entre las manos. Profundidad en el plano frontal.' },
+    { nombre:'Fire hydrant con cinta',                 videoId:'la7-HC-7Q3s', canal:'ProEteje',   tip:'A cuatro patas, eleva la rodilla lateralmente. Rotación externa de cadera pura.' },
+    { nombre:'Crab walk con mini-band',                videoId:'0zxFBOTa-7U', canal:'Funcional',  tip:'Pasos laterales en cuclillas. Alta fatiga de abductores en poco tiempo.' },
+  ],
+  espalda: [
+    { nombre:'Superman (extensión de espalda)',        videoId:'z6PJMT2y8GQ', canal:'GymVirtual', tip:'Tumbado boca abajo, eleva brazos y piernas. Activa erector espinal y glúteos.' },
+    { nombre:'Remo con mancuerna a una mano',          videoId:'pYcpY20QaE8', canal:'GymVirtual', tip:'Codo pegado al cuerpo, tira hacia la cadera. Fortalece la cadena posterior superior.' },
+    { nombre:'Buenos días con peso corporal',          videoId:'YA-h3n9L4YU', canal:'ProEteje',   tip:'Bisagra de cadera, espalda recta. Activa extensores de columna y glúteos.' },
+    { nombre:'Plancha con remo (renegade row)',        videoId:'RLztXPCzJ0E', canal:'GymVirtual', tip:'En posición de plancha, rema con cada brazo. Trabajo combinado de core y dorsal.' },
+    { nombre:'Vuelo posterior con mancuernas',         videoId:'6ZmJXl2M3Oo', canal:'GymVirtual', tip:'Inclinado hacia adelante, abre los brazos como alas. Activa trapecios y deltoides posteriores.' },
+    { nombre:'Extensión de espalda en banco',          videoId:'ph3pddpKzzw', canal:'Funcional',  tip:'Apoya el abdomen en el banco, sube el tronco. Control de la zona lumbar en carrera de fondo.' },
+    { nombre:'Remo invertido con mesa',                videoId:'YlMTEUEHMYw', canal:'Calistenia',  tip:'Debajo de una mesa, tira del pecho hacia arriba. Sin material: excelente para el dorsal.' },
+    { nombre:'Cobra yoga (extensión lumbar)',          videoId:'JDcdhTuycOI', canal:'ProEteje',   tip:'Extensión suave desde el suelo. Contrarresta la flexión continua en posición de carrera.' },
+  ],
+};
+
+/* ═══════════════════════════════════════════════
+   ESTADO
+═══════════════════════════════════════════════ */
+let musculoActivo = null;
+let sessionUsed   = {};   // { musculoId: Set<nombre> } — ejercicios ya mostrados esta sesión
+let currentCards  = [];   // array de objetos ejercicio actualmente en pantalla
+let favs          = {};   // { key: ejercicioObj } persistido en localStorage
+
+/* ═══════════════════════════════════════════════
+   LOCALSTORAGE — FAVORITOS
+═══════════════════════════════════════════════ */
+const FAV_KEY = 'ocuri_trail_favs';
+
+function loadFavs() {
+  try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '{}'); } catch { favs = {}; }
+}
+function saveFavs() {
+  try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch {}
+}
+function favKey(nombre) { return nombre.toLowerCase().replace(/\s+/g,'-'); }
+function isFav(nombre) { return !!favs[favKey(nombre)]; }
+function toggleFav(ejercicio) {
+  const k = favKey(ejercicio.nombre);
+  if (favs[k]) { delete favs[k]; } else { favs[k] = ejercicio; }
+  saveFavs();
+  updateFavBadge();
+  // Actualizar botones en pantalla
+  document.querySelectorAll(`.btn-fav[data-nombre="${CSS.escape(ejercicio.nombre)}"]`).forEach(btn => {
+    btn.classList.toggle('active', isFav(ejercicio.nombre));
+    btn.title = isFav(ejercicio.nombre) ? 'Quitar de favoritos' : 'Añadir a favoritos';
+  });
+  if (document.getElementById('tab-favs').classList.contains('active')) renderFavs();
+}
+function updateFavBadge() {
+  const count = Object.keys(favs).length;
+  const badge = document.getElementById('favBadge');
+  badge.textContent = count;
+  badge.hidden = count === 0;
+}
+
+/* ═══════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════ */
+function switchTab(tab) {
+  const isEntreno = tab === 'entreno';
+  document.getElementById('panelEntreno').hidden = !isEntreno;
+  document.getElementById('panelFavs').hidden    = isEntreno;
+  document.getElementById('mobileMuscleWrap').hidden = !isEntreno;
+  document.getElementById('tab-entreno').classList.toggle('active', isEntreno);
+  document.getElementById('tab-favs').classList.toggle('active', !isEntreno);
+  if (!isEntreno) renderFavs();
+}
+
+/* ═══════════════════════════════════════════════
+   UTILIDADES
+═══════════════════════════════════════════════ */
+function getThumbnail(videoId) { return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`; }
+function getYtUrl(videoId)     { return `https://www.youtube.com/watch?v=${videoId}`; }
+function getSearchUrl(nombre)  { return `https://www.youtube.com/results?search_query=${encodeURIComponent(nombre+' ejercicio trail running')}`; }
+function isMobile()            { return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&window.innerWidth<900); }
+
+function calcularSeries(nivel, objetivo) {
+  return { principiante:{fuerza:[3,'8-10'],resistencia:[2,'12-15'],estabilidad:[2,'10-12']},
+           intermedio:  {fuerza:[4,'6-8'], resistencia:[3,'12-15'],estabilidad:[3,'12-15']},
+           avanzado:    {fuerza:[5,'4-6'], resistencia:[4,'15-20'],estabilidad:[4,'15-20']} }[nivel][objetivo];
+}
+function calcularDescanso(objetivo) {
+  return {fuerza:'90-120 seg',resistencia:'45-60 seg',estabilidad:'30-45 seg'}[objetivo];
+}
+function calcularVolumen(nivel) {
+  return {principiante:'2 días/semana',intermedio:'3 días/semana',avanzado:'4 días/semana'}[nivel];
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+function init() {
+  loadFavs();
+  updateFavBadge();
+  const list = document.getElementById('muscleList');
+  const sel  = document.getElementById('mobileSelect');
+  MUSCULOS.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'muscle-btn';
+    btn.dataset.id = m.id;
+    btn.innerHTML = `<span class="m-icon">${m.icon}</span> ${m.label}`;
+    btn.onclick = () => selectMuscle(m.id);
+    list.appendChild(btn);
+    const opt = document.createElement('option');
+    opt.value = m.id; opt.textContent = `${m.icon}  ${m.label}`;
+    sel.appendChild(opt);
+  });
+}
+
+function selectMuscle(id) {
+  if (!id) return;
+  musculoActivo = id;
+  document.querySelectorAll('.muscle-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  document.getElementById('mobileSelect').value = id;
+}
+
+/* ═══════════════════════════════════════════════
+   ROTACIÓN SIN REPETIR
+═══════════════════════════════════════════════ */
+function pickEjercicios(musculoId, count = 6) {
+  if (!sessionUsed[musculoId]) sessionUsed[musculoId] = new Set();
+  const pool    = EJERCICIOS[musculoId];
+  const used    = sessionUsed[musculoId];
+  let available = pool.filter(e => !used.has(e.nombre));
+  // Si no hay suficientes sin usar, resetear
+  if (available.length < count) {
+    used.clear();
+    available = [...pool];
+  }
+  // Mezclar y seleccionar
+  const shuffled = available.sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, count);
+  selected.forEach(e => used.add(e.nombre));
+  return selected;
+}
+
+function rotarEjercicio(index) {
+  if (!musculoActivo) return;
+  if (!sessionUsed[musculoActivo]) sessionUsed[musculoActivo] = new Set();
+  const pool      = EJERCICIOS[musculoActivo];
+  const usedNames = new Set(currentCards.map(e => e.nombre));
+  let candidates  = pool.filter(e => !usedNames.has(e.nombre) && !sessionUsed[musculoActivo].has(e.nombre));
+  if (!candidates.length) {
+    // Resetear solo los no actuales
+    candidates = pool.filter(e => !usedNames.has(e.nombre));
+  }
+  if (!candidates.length) return; // solo 6 o menos ejercicios en total
+  const nuevo = candidates[Math.floor(Math.random() * candidates.length)];
+  sessionUsed[musculoActivo].add(nuevo.nombre);
+  currentCards[index] = nuevo;
+
+  // Re-renderizar esa card
+  const nivel    = document.getElementById('nivel').value;
+  const objetivo = document.getElementById('objetivo').value;
+  const [series, reps] = calcularSeries(nivel, objetivo);
+  const descanso = calcularDescanso(objetivo);
+  const musculo  = MUSCULOS.find(m => m.id === musculoActivo);
+  const grid     = document.getElementById('ejerciciosGrid');
+  const cards    = grid.querySelectorAll('.ejercicio-card');
+  if (cards[index]) {
+    const newCard = buildCard(nuevo, index, series, reps, descanso, musculo, false);
+    cards[index].replaceWith(newCard);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   BUILD CARD
+═══════════════════════════════════════════════ */
+function buildCard(ej, i, series, reps, descanso, musculo, isIA) {
+  const ytUrl     = getYtUrl(ej.videoId || '');
+  const searchUrl = getSearchUrl(ej.nombre);
+  const hasVideo  = !!ej.videoId;
+  const pool      = EJERCICIOS[musculoActivo] || [];
+  const canRotate = pool.length > (currentCards.length);
+
+  const card = document.createElement('div');
+  card.className = 'ejercicio-card' + (isIA ? ' ia-card' : '');
+
+  const thumbClass = isIA || !hasVideo ? 'card-video-thumb ia-thumb' : 'card-video-thumb';
+  const numClass   = isIA ? 'card-num ia-num' : 'card-num';
+  const imgHtml    = hasVideo
+    ? `<img src="${getThumbnail(ej.videoId)}" alt="${ej.nombre}" loading="lazy" onerror="this.closest('.card-video-thumb').classList.add('has-error')">`
+    : '';
+  const linkHtml   = hasVideo
+    ? `<a class="card-link" href="${ytUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l5-5M10 4h10v10M12 14l-8 8"/></svg>
+         Ver en YouTube · ${ej.canal || 'YouTube'}
+       </a>`
+    : `<a class="card-link" href="${searchUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+         Buscar vídeo en YouTube
+       </a>`;
+
+  const iaBadge = isIA ? `<span class="ia-label-badge">✦ IA</span>` : '';
+  const tipHtml = isIA
+    ? `<div class="ia-tip-box">${ej.tip}</div>`
+    : `<div class="card-tip">${ej.tip}</div>`;
+
+  const nombre_esc = ej.nombre.replace(/"/g,'&quot;');
+  const favActive  = isFav(ej.nombre) ? 'active' : '';
+
+  card.innerHTML = `
+    <div class="${thumbClass}"
+         onclick="${hasVideo ? `abrirVideo('${ej.videoId}','${ej.nombre.replace(/'/g,"\\'")}')` : `window.open('${searchUrl}','_blank')`}"
+         role="button" tabindex="0" aria-label="Ver vídeo de ${ej.nombre}">
+      ${imgHtml}
+      <div class="card-video-placeholder">${musculo.icon}</div>
+      <div class="play-overlay"><div class="play-btn">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </div></div>
+      <span class="${numClass}">Ej. ${i+1}</span>
+      <span class="card-yt-hint">▶ Abre YouTube</span>
+    </div>
+    <div class="card-body">
+      <div class="card-nombre">${ej.nombre} ${iaBadge}</div>
+      <div class="card-stats">
+        <div class="stat-box"><div class="stat-val">${series}</div><div class="stat-lbl">Series</div></div>
+        <div class="stat-box"><div class="stat-val">${reps}</div><div class="stat-lbl">Reps</div></div>
+        <div class="stat-box"><div class="stat-val">${descanso.replace(' seg','s')}</div><div class="stat-lbl">Descanso</div></div>
+      </div>
+      ${tipHtml}
+      ${linkHtml}
+    </div>
+    <div class="card-actions">
+      <button class="btn-rotar" onclick="rotarEjercicio(${i})" title="Rotar por otro ejercicio" ${!canRotate?'disabled':''}>↻ Rotar</button>
+      <button class="btn-fav ${favActive}" data-nombre="${nombre_esc}"
+              onclick='toggleFav(${JSON.stringify(ej).replace(/'/g,"&#39;")})'
+              title="${isFav(ej.nombre)?'Quitar de favoritos':'Añadir a favoritos'}">
+        <span class="fav-icon"></span> Favorito
+      </button>
+    </div>
+  `;
+  return card;
+}
+
+/* ═══════════════════════════════════════════════
+   GENERAR PROGRAMA (local o IA)
+═══════════════════════════════════════════════ */
+async function generarPrograma(useIA) {
+  if (!musculoActivo) {
+    alert('Por favor, selecciona primero un grupo muscular en el menú lateral.');
+    return;
+  }
+  const edad    = parseInt(document.getElementById('edad').value) || 35;
+  const peso    = parseInt(document.getElementById('peso').value) || 70;
+  const nivel   = document.getElementById('nivel').value;
+  const objetivo= document.getElementById('objetivo').value;
+  const musculo = MUSCULOS.find(m => m.id === musculoActivo);
+
+  const [series, reps] = calcularSeries(nivel, objetivo);
+  const descanso = calcularDescanso(objetivo);
+  const vol      = calcularVolumen(nivel);
+
+  const ajusteEdad = edad>50 ? '⚠️ Mayor de 50: descansa 20s extra entre series.' :
+                     edad<25 ? '✅ Edad óptima: puedes acortar el descanso 10s.' : '';
+  const ajustePeso = peso<60 ? 'Usa mancuernas más ligeras (2-5 kg). Prioriza la técnica.' :
+                     peso>90 ? 'Con más masa, reduce repeticiones en salto y aumenta control excéntrico.' :
+                     'Peso estándar. Progresa 0,5 kg por semana en ejercicios con mancuernas.';
+
+  document.getElementById('emptyState').hidden = true;
+  const area = document.getElementById('programaArea');
+  area.hidden = false;
+
+  const nivelLabel    = {principiante:'Principiante',intermedio:'Intermedio',avanzado:'Avanzado'}[nivel];
+  const objetivoLabel = {fuerza:'Fuerza',resistencia:'Resistencia-muscular',estabilidad:'Estabilidad'}[objetivo];
+  const iaTagHtml     = useIA ? `<span class="meta-tag ia-tag">✦ Generado por IA</span>` : '';
+
+  area.innerHTML = `
+    <div class="programa-header">
+      <div>
+        <div class="programa-titulo">${musculo.icon} <span>${musculo.label}</span></div>
+        <div class="programa-meta">
+          <span class="meta-tag">${nivelLabel}</span>
+          <span class="meta-tag">${objetivoLabel}</span>
+          <span class="meta-tag">${edad} años · ${peso} kg</span>
+          <span class="meta-tag">${vol}</span>
+          ${iaTagHtml}
+        </div>
+      </div>
+    </div>
+    <div class="ejercicios-grid" id="ejerciciosGrid"></div>
+    <div class="resumen-bloque">
+      <div class="r-item"><div class="r-val" id="rEjercicios">6</div><div class="r-lbl">Ejercicios</div></div>
+      <div class="r-item"><div class="r-val">${series}</div><div class="r-lbl">Series</div></div>
+      <div class="r-item"><div class="r-val">${reps}</div><div class="r-lbl">Reps</div></div>
+      <div class="r-item"><div class="r-val">${descanso.split(' ')[0]}</div><div class="r-lbl">Descanso</div></div>
+      <div class="r-sep">
+        ${ajusteEdad ? `<strong>Nota:</strong> ${ajusteEdad}<br>` : ''}
+        <strong>Carga:</strong> ${ajustePeso}
+      </div>
+    </div>
+  `;
+
+  area.scrollIntoView({ behavior:'smooth', block:'start' });
+
+  if (useIA) {
+    await generarConIA(musculo, nivel, objetivo, edad, peso, series, reps, descanso);
+  } else {
+    generarLocal(musculo, nivel, objetivo, series, reps, descanso);
+  }
+}
+
+function generarLocal(musculo, nivel, objetivo, series, reps, descanso) {
+  const ejercs = pickEjercicios(musculo.id, 6);
+  currentCards = [...ejercs];
+  const grid = document.getElementById('ejerciciosGrid');
+  grid.innerHTML = '';
+  ejercs.forEach((ej, i) => grid.appendChild(buildCard(ej, i, series, reps, descanso, musculo, false)));
+}
+
+/* ═══════════════════════════════════════════════
+   GENERACIÓN CON IA
+═══════════════════════════════════════════════ */
+async function generarConIA(musculo, nivel, objetivo, edad, peso, series, reps, descanso) {
+  const btn = document.getElementById('btnIA');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('btnIA').querySelector('.ia-label').textContent = 'Generando…';
+
+  // Mostrar skeleton mientras carga
+  const grid = document.getElementById('ejerciciosGrid');
+  grid.innerHTML = Array(6).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton-thumb"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line" style="width:75%"></div>
+        <div class="skeleton-line" style="width:55%"></div>
+        <div class="skeleton-line" style="width:90%"></div>
+        <div class="skeleton-line" style="width:65%"></div>
+      </div>
+    </div>`).join('');
+
+  const prompt = `Eres un entrenador especialista en trail running y fuerza funcional.
+Genera exactamente 6 ejercicios de fuerza para el grupo muscular: ${musculo.label}.
+Perfil del atleta: nivel ${nivel}, objetivo ${objetivo}, edad ${edad} años, peso ${peso}kg.
+Adapta la selección y los consejos a este perfil específico.
+
+Responde SOLO con un array JSON válido, sin markdown, sin explicaciones. Formato:
+[
+  {
+    "nombre": "Nombre del ejercicio",
+    "tip": "Consejo técnico específico para trail running (máx 120 caracteres)",
+    "canal": "NombreCanal"
+  }
+]
+Incluye ejercicios funcionales, con y sin material, apropiados para el nivel indicado.`;
+
+  try {
+    const resp = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-App-Token': PROXY_SECRET,
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const text = data?.content?.[0]?.text || '';
+
+    // Extraer JSON del texto
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('La IA no devolvió JSON válido');
+    const iaEjercicios = JSON.parse(match[0]);
+
+    if (!Array.isArray(iaEjercicios) || iaEjercicios.length === 0) throw new Error('Array vacío');
+
+    // Completar con ejercicios locales si la IA devuelve menos de 6
+    const filled = iaEjercicios.slice(0, 6).map(e => ({
+      nombre: e.nombre || 'Ejercicio IA',
+      tip:    e.tip    || '',
+      canal:  e.canal  || 'IA',
+      videoId: null,  // IA no genera IDs de YouTube
+    }));
+    while (filled.length < 6) {
+      const local = pickEjercicios(musculo.id, 1)[0];
+      filled.push(local);
+    }
+
+    currentCards = [...filled];
+    grid.innerHTML = '';
+    filled.forEach((ej, i) => grid.appendChild(buildCard(ej, i, series, reps, descanso, musculo, !ej.videoId)));
+    document.getElementById('rEjercicios').textContent = filled.length;
+
+  } catch (err) {
+    // Fallback a ejercicios locales si falla la IA
+    grid.innerHTML = '';
+    const fallback = pickEjercicios(musculo.id, 6);
+    currentCards = [...fallback];
+    fallback.forEach((ej, i) => grid.appendChild(buildCard(ej, i, series, reps, descanso, musculo, false)));
+
+    // Toast de error
+    showToast(`⚠️ IA no disponible: ${err.message}. Mostrando ejercicios locales.`);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    btn.querySelector('.ia-label').textContent = '✦ IA';
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+function showToast(msg) {
+  let t = document.getElementById('appToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'appToast';
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:var(--fg);color:var(--bg);padding:10px 20px;border-radius:var(--r-md);
+      font-size:0.85rem;z-index:200;max-width:90vw;text-align:center;
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);transition:opacity 0.3s;`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 4000);
+}
+
+/* ═══════════════════════════════════════════════
+   FAVORITOS — RENDER TAB
+═══════════════════════════════════════════════ */
+function renderFavs() {
+  const container = document.getElementById('favsContent');
+  const list = Object.values(favs);
+
+  if (!list.length) {
+    container.innerHTML = `
+      <div class="favs-empty">
+        <div class="empty-icon">★</div>
+        <h2>Sin favoritos todavía</h2>
+        <p>Pulsa el botón ☆ Favorito en cualquier ejercicio para guardarlo aquí.</p>
+      </div>`;
+    return;
+  }
+
+  // Agrupar por grupo muscular
+  const grupos = {};
+  list.forEach(ej => {
+    const g = ej._musculo || 'Otros';
+    if (!grupos[g]) grupos[g] = [];
+    grupos[g].push(ej);
+  });
+
+  container.innerHTML = `
+    <div class="favs-header">
+      <div class="favs-titulo">★ Favoritos <span style="color:var(--fg-muted);font-size:1.1rem">(${list.length})</span></div>
+      <button class="btn-clear-favs" onclick="clearAllFavs()">Borrar todos</button>
+    </div>
+    <div class="ejercicios-grid" id="favsGrid"></div>`;
+
+  const grid = document.getElementById('favsGrid');
+  // Usar parámetros genéricos para las cards de favoritos
+  list.forEach((ej, i) => {
+    const musculo = MUSCULOS.find(m => m.id === ej._musculo) || { icon: '⭐', id: 'otros' };
+    const card = buildFavCard(ej, musculo);
+    grid.appendChild(card);
+  });
+}
+
+function buildFavCard(ej, musculo) {
+  const ytUrl     = ej.videoId ? getYtUrl(ej.videoId) : getSearchUrl(ej.nombre);
+  const searchUrl = getSearchUrl(ej.nombre);
+  const hasVideo  = !!ej.videoId;
+  const nombre_esc = ej.nombre.replace(/"/g,'&quot;');
+
+  const card = document.createElement('div');
+  card.className = 'ejercicio-card';
+
+  const thumbClass = hasVideo ? 'card-video-thumb' : 'card-video-thumb ia-thumb';
+  const imgHtml    = hasVideo
+    ? `<img src="${getThumbnail(ej.videoId)}" alt="${ej.nombre}" loading="lazy" onerror="this.closest('.card-video-thumb').classList.add('has-error')">`
+    : '';
+
+  card.innerHTML = `
+    <div class="${thumbClass}"
+         onclick="${hasVideo ? `abrirVideo('${ej.videoId}','${ej.nombre.replace(/'/g,"\\'")}')` : `window.open('${searchUrl}','_blank')`}"
+         role="button" tabindex="0">
+      ${imgHtml}
+      <div class="card-video-placeholder">${musculo.icon}</div>
+      <div class="play-overlay"><div class="play-btn">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </div></div>
+      <span class="card-num">${musculo.icon}</span>
+    </div>
+    <div class="card-body">
+      <div class="card-nombre">${ej.nombre}</div>
+      <div class="card-tip">${ej.tip}</div>
+      <a class="card-link" href="${ytUrl}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l5-5M10 4h10v10M12 14l-8 8"/></svg>
+        ${hasVideo ? `Ver en YouTube · ${ej.canal||''}` : 'Buscar en YouTube'}
+      </a>
+    </div>
+    <div class="card-actions">
+      <button class="btn-fav active" data-nombre="${nombre_esc}"
+              onclick='removeFav("${favKey(ej.nombre)}")' title="Quitar de favoritos">
+        <span class="fav-icon"></span> Favorito
+      </button>
+    </div>`;
+  return card;
+}
+
+function removeFav(key) {
+  delete favs[key];
+  saveFavs();
+  updateFavBadge();
+  renderFavs();
+}
+function clearAllFavs() {
+  if (!confirm('¿Borrar todos los favoritos?')) return;
+  favs = {};
+  saveFavs();
+  updateFavBadge();
+  renderFavs();
+}
+
+/* ═══════════════════════════════════════════════
+   VÍDEO MODAL
+═══════════════════════════════════════════════ */
+function abrirVideo(videoId, nombre) {
+  if (isMobile()) { window.open(getYtUrl(videoId), '_blank', 'noopener'); return; }
+  openModal(videoId, nombre);
+}
+function openModal(videoId, nombre) {
+  document.getElementById('modalTitle').textContent = nombre;
+  document.getElementById('modalIframe').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+  document.getElementById('modalYtLink').href     = getYtUrl(videoId);
+  document.getElementById('modalSearchLink').href = getSearchUrl(nombre);
+  document.getElementById('videoModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('videoModal')) return;
+  document.getElementById('videoModal').classList.remove('open');
+  document.getElementById('modalIframe').src = '';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+
+/* ═══════════════════════════════════════════════
+   TEMA
+═══════════════════════════════════════════════ */
+function toggleTheme() {
+  const root = document.documentElement;
+  const cur  = root.getAttribute('data-theme');
+  const btn  = document.querySelector('.header-btn');
+  if (cur==='dark')       { root.setAttribute('data-theme','light'); btn.textContent='☾'; }
+  else if (cur==='light') { root.removeAttribute('data-theme');       btn.textContent='☾'; }
+  else                    { root.setAttribute('data-theme','dark');   btn.textContent='☀'; }
+}
+
+init();
+</script>
+</body>
+</html>
